@@ -6,5 +6,6 @@ using UnityEngine;
 public class DialogueData : ScriptableObject
 {
     [SerializeField] public string character;
+    //[SerializeField] public int fontSize = 48;
     [SerializeField] public string[] text;
 }

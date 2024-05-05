@@ -8,6 +8,8 @@ public class NarratedText : MonoBehaviour
     private string finalText = "";
     public string text = "";
 
+    
+
     [SerializeField] private TextMeshProUGUI textMesh;
 
     [SerializeField] private float textDelay = 0.033f;
@@ -20,13 +22,13 @@ public class NarratedText : MonoBehaviour
     private float curDelay = 0.0f; //the delay to currently wait through
     public bool narrating = false;
     public bool allowSkip = true;
-    public bool allowContinue = false;
+    public bool allowContinue = true;
 
     public int length = 0;
 
     public float updateClock = 0.0f;
 
-    public AudioSource textSound;
+    public AudioClip textSound;
 
     public string[] _ignoreChars = { "`", "~", "*", "(", ")", "-", "_", "=", "+", "{", "}", "[", "]", "'", "\\", "\n", "\t", "|", "<", ">", "/", "^", " ", "" };
     public string[] _punctuationChars = { ".", ",", "!", "?", ":", ";" };
@@ -36,7 +38,12 @@ public class NarratedText : MonoBehaviour
         //set text format and other variable stuff here
         delay = textDelay;
 
-        textMesh = gameObject.GetComponent<TextMeshProUGUI>();
+        narrating = false;
+        allowContinue = true;
+
+        SetSound();
+
+        //textMesh = gameObject.GetComponent<TextMeshProUGUI>();
     }
 
 
@@ -46,9 +53,15 @@ public class NarratedText : MonoBehaviour
         length = finalText.Length;
     }
 
-    public void SetSound()
+    public void SetSound(string character = "sample")
     {
+        textSound = Resources.Load<AudioClip>
+            ("Sounds/Dialogue/" + character);
+    }
 
+    public void PlaySound()
+    {
+        AudioManager.PlayClip2D(textSound, 0.2f);
     }
 
     public void StartNarrating(float delayOverride = 0.0f)
@@ -59,11 +72,6 @@ public class NarratedText : MonoBehaviour
             delay = textDelay;
 
         narrating = true;
-    }
-
-    public void PlaySound()
-    {
-
     }
 
     public string AddCurrentLetter()
@@ -80,7 +88,7 @@ public class NarratedText : MonoBehaviour
         }
 
 
-        if (curLetterNum >= length)
+        if (curLetterNum >= length - 1)
         {
             curLetterNum = 0;
             FinishNarration();
@@ -133,6 +141,7 @@ public class NarratedText : MonoBehaviour
             {
                 string addedLetter = AddCurrentLetter();
                 SetNextDelayFromLetter(addedLetter);
+                PlaySound();
                 updateClock = 0.0f;
             }
         }

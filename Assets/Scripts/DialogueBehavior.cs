@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class DialogueBehavior : MonoBehaviour
@@ -9,11 +10,12 @@ public class DialogueBehavior : MonoBehaviour
     [SerializeField] private Color boxColor = Color.black;
 
     [SerializeField] private DialogueData dialogue;
+    [SerializeField] private Image icon;
     private NarratedText narratedText;
 
-    private bool dialogueCompleted = false;
+    public bool dialogueCompleted = false; //deactivation flag
 
-    private int currentLine = 0;
+    private int currentLine = -1;
 
 
     // Start is called before the first frame update
@@ -23,12 +25,37 @@ public class DialogueBehavior : MonoBehaviour
         narratedText = gameObject.GetComponent<NarratedText>();
     }
 
+    public void SetDialogue(DialogueData newDialogue = null)
+    {
+        if(newDialogue != null)
+        {
+            dialogue = newDialogue;
+        }
+        currentLine = -1;
+        dialogueCompleted = false;
+
+        SetIconSprite();
+        SetSound();
+    }
+
+    public void SetIconSprite()
+    {
+        icon.sprite = Resources.Load<Sprite>
+            ("Sprites/DialoguePortraits/" + dialogue.character);
+    }
+
+    public void SetSound()
+    {
+        narratedText.SetSound(dialogue.character);
+    }
+
     public void NextLine()
     {
-        if (!narratedText.allowContinue)
+        if (!CanContinue())
             return;
 
         narratedText.text = "";
+        currentLine++;
 
         if(currentLine < dialogue.text.Length)
         {
@@ -44,7 +71,7 @@ public class DialogueBehavior : MonoBehaviour
 
     public void SkipNarration()
     {
-        if(narratedText.allowSkip)
+        if(CanSkip())
         {
             narratedText.SkipNarration();
         }
@@ -54,5 +81,20 @@ public class DialogueBehavior : MonoBehaviour
     void Update()
     {
         
+    }
+    
+    //some getters for the controller class
+    public bool IsNarrating()
+    {
+        return narratedText.narrating;
+    }
+
+    public bool CanContinue()
+    {
+        return narratedText.allowContinue;
+    }
+    public bool CanSkip()
+    {
+        return narratedText.allowSkip;
     }
 }
